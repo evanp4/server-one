@@ -4,16 +4,17 @@
 #include <condition_variable>
 #include <memory>
 #include <boost/asio.hpp>
+using namespace std;
 
 using boost::asio::ip::tcp;
 
 class RequestQueue {
 public:
-    void push(std::shared_ptr<tcp::socket> socket);
-    std::shared_ptr<tcp::socket> pop();
+    void push(shared_ptr<tcp::socket> socket);
+    shared_ptr<tcp::socket> pop();
 
 private:
-    std::queue<std::shared_ptr<tcp::socket>> queue_;
-    std::mutex mutex_;
-    std::condition_variable condition_;
+    queue<shared_ptr<tcp::socket>> queue_;
+    mutex mutex_;
+    condition_variable condition_;
 };

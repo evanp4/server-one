@@ -1,3 +1,0 @@
-/home/evanp1/Documents/server-one/build/CMakeFiles/server.dir
-/home/evanp1/Documents/server-one/build/CMakeFiles/edit_cache.dir
-/home/evanp1/Documents/server-one/build/CMakeFiles/rebuild_cache.dir

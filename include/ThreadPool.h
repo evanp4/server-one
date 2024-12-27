@@ -5,19 +5,20 @@
 #include <mutex>
 #include <condition_variable>
 #include <functional>
+using namespace std;
 
 class ThreadPool {
 public:
     ThreadPool(size_t numThreads);
     ~ThreadPool();
 
-    void enqueue(std::function<void()> task);
+    void enqueue(function<void()> task);
 
 private:
-    std::vector<std::thread> workers;
-    std::queue<std::function<void()>> tasks;
+    vector<thread> workers;
+    queue<function<void()>> tasks;
 
-    std::mutex queueMutex;
-    std::condition_variable condition;
+    mutex queueMutex;
+    condition_variable condition;
     bool stop;
 };
