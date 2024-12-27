@@ -1,8 +1,13 @@
 #include <iostream>
 #include <thread>
 #include <csignal>
+#include <fstream>
+#include <sstream>
 #include <boost/asio.hpp>
+#include <boost/filesystem.hpp>
 using namespace std;
+
+namespace fs = boost::filesystem;
 
 boost::asio::io_context io_context;
 unique_ptr<boost::asio::ip::tcp::acceptor> acceptor_ptr;
@@ -21,16 +26,36 @@ void handle_connection(shared_ptr<boost::asio::ip::tcp::socket> socket) {
                 istream is(buffer.get());
                 string line;
                 getline(is, line);
+                istringstream request_line(line);
+                string method;
+                string uri;
+                string version;
+                request_line >> method >> uri >> version;
+                if (uri == "/") {
+                    uri = "/index.html";
+                }
 
-                // Send a response
-                string response = "HTTP/1.1 200 OK\r\nContent-Length: 13\r\n\r\nHello, World!";
-                boost::asio::async_write(*socket, boost::asio::buffer(response),
-                    [socket](const boost::system::error_code& error, size_t) {
-                        if (!error) {
+                string file_path = "www" + uri;
+                if (fs::exists(file_path)) {
+                    ifstream file(file_path);
+                    stringstream response;
+                    response << "HTTP/1.1 200 OK\r\n";
+                    response << "Content-Type: text/html\r\n";
+                    response << "Content-Length: " << fs::file_size(file_path) << "\r\n";
+                    response << "\r\n";
+                    response << file.rdbuf();
+                    file.close();
+                    boost::asio::async_write(*socket, boost::asio::buffer(response.str()),
+                        [socket](const boost::system::error_code& error, size_t bytes_transferred) {
                             socket->shutdown(boost::asio::ip::tcp::socket::shutdown_both);
-                            socket->close();
-                        }
-                    });
+                        });
+                } else {
+                    string response = "HTTP/1.1 404 Not Found\r\n\r\n";
+                    boost::asio::async_write(*socket, boost::asio::buffer(response),
+                        [socket](const boost::system::error_code& error, size_t bytes_transferred) {
+                            socket->shutdown(boost::asio::ip::tcp::socket::shutdown_both);
+                        });
+                }
             }
         });
 }

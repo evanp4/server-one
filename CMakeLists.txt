@@ -4,6 +4,7 @@ project(MultithreadedWebServer)
 set(CMAKE_CXX_STANDARD 17)
 
 find_package(Boost 1.66 REQUIRED COMPONENTS system)
+find_package(Boost REQUIRED COMPONENTS system filesystem)
 
 include_directories(${Boost_INCLUDE_DIRS} include)
 
