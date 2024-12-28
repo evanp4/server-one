@@ -2,9 +2,59 @@
 <html>
 <head>
     <title>Home</title>
+    <style>
+        .correct { color: green; }
+        .incorrect { color: red; }
+    </style>
 </head>
 <body>
     <h1>Welcome to the Home Page</h1>
     <p>Web content</p>
+    <div id="typing-test">
+        <p id="text-to-type"></p>
+        <input type="text" id="typing-input" placeholder="Start typing..." autofocus>
+        <p id="result"></p>
+    </div>
+    <script>
+        async function fetchRandomWords() {
+            const response = await fetch('/random-words');
+            const text = await response.text();
+            return text.trim();
+        }
+
+        async function initTypingTest() {
+            const textToType = await fetchRandomWords();
+            document.getElementById('text-to-type').innerText = textToType;
+
+            const typingInput = document.getElementById('typing-input');
+            const result = document.getElementById('result');
+
+            typingInput.addEventListener('input', () => {
+                const typedText = typingInput.value;
+                let displayText = '';
+
+                for (let i = 0; i < textToType.length; i++) {
+                    if (i < typedText.length) {
+                        if (typedText[i] === textToType[i]) {
+                            displayText += `<span class="correct">${textToType[i]}</span>`;
+                        } else {
+                            displayText += `<span class="incorrect">${textToType[i]}</span>`;
+                        }
+                    } else {
+                        displayText += textToType[i];
+                    }
+                }
+
+                result.innerHTML = displayText;
+
+                if (typedText === textToType) {
+                    alert('Congratulations! You completed the typing test.');
+                    typingInput.value = '';
+                }
+            });
+        }
+
+        initTypingTest();
+    </script>
 </body>
 </html>
